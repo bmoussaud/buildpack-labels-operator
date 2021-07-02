@@ -31,7 +31,7 @@ import (
 	"sigs.k8s.io/controller-runtime/pkg/healthz"
 	"sigs.k8s.io/controller-runtime/pkg/log/zap"
 
-	"github.com/bmoussaud/tbs-label-operator/controllers"
+	"github.com/bmoussaud/buildpack-labels-operator/controllers"
 	//+kubebuilder:scaffold:imports
 )
 

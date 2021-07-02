@@ -28,15 +28,16 @@ BUNDLE_METADATA_OPTS ?= $(BUNDLE_CHANNELS) $(BUNDLE_DEFAULT_CHANNEL)
 # This variable is used to construct full image tags for bundle and catalog images.
 #
 # For example, running 'make bundle-build bundle-push catalog-build catalog-push' will build and push both
-# moussaud.org/tbs-labels-operator-bundle:$VERSION and moussaud.org/tbs-labels-operator-catalog:$VERSION.
-IMAGE_TAG_BASE ?= moussaud.org/tbs-labels-operator
+# bmoussaud/buildpack-labels-operator-bundle:$VERSION and bmoussaud/buildpack-labels-operator-catalog:$VERSION.
+IMAGE_TAG_BASE ?= library/buildpack-labels-operator
 
 # BUNDLE_IMG defines the image:tag used for the bundle.
 # You can use it as an arg. (E.g make bundle-build BUNDLE_IMG=<some-registry>/<project-name-bundle>:<tag>)
 BUNDLE_IMG ?= $(IMAGE_TAG_BASE)-bundle:v$(VERSION)
 
 # Image URL to use all building/pushing image targets
-IMG ?= controller:latest
+#IMG ?= controller:latest
+IMG = harbor.mytanzu.xyz/${IMAGE_TAG_BASE}:${VERSION}
 # Produce CRDs that work back to Kubernetes 1.11 (no version conversion)
 CRD_OPTIONS ?= "crd:trivialVersions=true,preserveUnknownFields=false"
 

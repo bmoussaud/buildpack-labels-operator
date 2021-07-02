@@ -4,8 +4,8 @@ layout:
 plugins:
   manifests.sdk.operatorframework.io/v2: {}
   scorecard.sdk.operatorframework.io/v2: {}
-projectName: tbs-labels-operator
-repo: github.com/bmoussaud/tbs-label-operator
+projectName: buildpack-labels-operator
+repo: github.com/bmoussaud/buildpack-labels-operator
 resources:
 - controller: true
   group: core
