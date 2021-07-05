@@ -7,9 +7,10 @@ This kubernetes operator watch pods. It inspect all the managed images. If one o
 It can be smart to know which images built by a `kpack`service (ex Tanzu Build Service) are running on which kubernetes clusters to measure the effiency of the service : how a single images has been deployed on the several clusters, how many clusters are consumming the image built by the service,....
 
 1. Identify the image
+
 At build time, configure customs label using 
-* either the (paketo-buildpacks/image-labels)[https://github.com/paketo-buildpacks/image-labels] buildpack that is based a environment variable and a naming convention.
-* or a custom buildpack that provided the values without any impact ton the project 
+* either the [paketo-buildpacks/image-labels](https://github.com/paketo-buildpacks/image-labels) buildpack that is based a environment variable and a naming convention.
+* or a custom buildpack that provided the values without any impact ton the project  [mycompany-owner-buildpack](https://github.com/bmoussaud/cnb-nodejs/tree/master/mycompany-owner-buildpack)
 
 2. Install the operator
 
@@ -47,7 +48,7 @@ Environment Variable
 
 ## Source
 
-The controler is based on this article (Get labels of remote docker image)[https://stackoverflow.com/questions/62600611/get-labels-of-remote-docker-image]
+The controler is based on this article [Get labels of remote docker image](https://stackoverflow.com/questions/62600611/get-labels-of-remote-docker-image)
 
 ```
 registry="harbor.mytanzu.xyz"
