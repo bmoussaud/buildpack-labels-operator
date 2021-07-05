@@ -1,4 +1,4 @@
-# TBS-LABELS-OPERATOR
+# BUILD PACK LABELS OPERATOR
 
 This kubernetes operator watch pods. It inspect all the managed images. If one of them comes from the `WATCHED_REGISTRY` and contains Labels put at build time by kPack or Tanzu Build Service that starts with `PREFIX_IMAGE_LABEL` then all will be applied on the running pod using the `PREFIX_POD_LABEL`.
 
@@ -16,20 +16,20 @@ At build time, configure customs label using
 
 ````
 make deploy
-`````
+````
 
 or 
 
 ````
 cd config/manager && kustomize edit set image controller=harbor.mytanzu.xyz/library/buildpack-labels-operator
 kustomize build config/default | kubectl apply -f -
-```
+````
 
 3. Query the pods
 
 The following command return all the pods that match the labels
 
-```
+````
 kubectl get pods -A -l tanzu-build-service/kpack.builder.instance=tbs-2 -o wide
 ````
 
