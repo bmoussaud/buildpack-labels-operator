@@ -33,6 +33,8 @@ The following command return all the pods that match one of the labels
 kubectl get pods -A -l tanzu-build-service/kpack.builder.instance=tbs-2 -o wide
 ````
 
+![schema](buildpack-labels-operator.jpg)
+
 
 ## Configuration
 
