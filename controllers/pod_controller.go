@@ -122,6 +122,7 @@ func call(url, method string) ([]byte, error) {
 	if err != nil {
 		return nil, fmt.Errorf("got error %s", err.Error())
 	}
+	// TODO: Manage Private Registries....
 	req.SetBasicAuth("robot$buildpack-labels-operator", "391BGIkqZxv0Ks78baiZx9RttCk4ciU6")
 	req.Header.Add("Accept", "application/vnd.docker.distribution.manifest.v2+json")
 	req.Header.Add("Expires", "10ms")
@@ -255,7 +256,10 @@ func (r *PodReconciler) Reconcile(ctx context.Context, req ctrl.Request) (ctrl.R
 			config := queryConfig(ctx, image, digest)
 
 			for k, v := range filterImageLabels(config.Labels, prefixImageLabel) {
-				all_candidates[prefixPodLabel+"/"+k] = v
+				key := prefixPodLabel + "/" + k
+				value := strings.Replace(v, "@", "-", -1)
+				log.FromContext(ctx).Info("===> add candidate label " + key + ":" + value)
+				all_candidates[key] = value
 			}
 		}
 	}

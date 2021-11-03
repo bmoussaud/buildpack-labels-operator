@@ -62,6 +62,7 @@ The controler is based on this article [Get labels of remote docker image](https
 The implementation is using an operator but the result could be done by running a bash script that queries all the running pod and executes the 2 following request to fetch the labels.
 
 ```
+# get_digest.sh
 registry="harbor.mytanzu.xyz"
 repo="library/cnb-nodejs"
 digest=$(curl https://${registry}/v2/${repo}/manifests/latest | jq -r .config.digest)
