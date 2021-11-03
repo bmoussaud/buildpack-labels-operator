@@ -14,6 +14,12 @@ At *build* time, configure custom labels that will be applied. 2 way to achieve 
 
 2. Install this operator
 
+To build the image 
+````
+make docker-build
+make docker-push
+````
+
 ````
 make deploy
 ````
@@ -43,6 +49,8 @@ Environment Variables:
 * PREFIX_IMAGE_LABEL: fetch the labels that start with this value.
 * PREFIX_POD_LABEL: the prefix set on the pod's label. Eg if PREFIX_POD_LABEL=tanzu then all the pods'labels will be `tanzu/<container-label>`
 * REQUEST_DEBUG: if `true`, the operator dumps the results to the call to the registry
+
+Edit the values defined in [`config/manager/operator-config.yaml`](config/manager/operator-config.yaml)
 
 ## Known limitation:
 

@@ -23,3 +23,5 @@ testbin/*
 *.swp
 *.swo
 *~
+get_digest.sh
+.DS_Store

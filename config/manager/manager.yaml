@@ -52,5 +52,26 @@ spec:
           requests:
             cpu: 100m
             memory: 20Mi
+        env:
+        - name: WATCHED_REGISTRY   
+          valueFrom:
+            configMapKeyRef:
+              name: operator-config
+              key: WATCHED_REGISTRY
+        - name: PREFIX_IMAGE_LABEL
+          valueFrom:
+            configMapKeyRef:
+              name: operator-config
+              key: PREFIX_IMAGE_LABEL
+        - name: REQUEST_DEBUG
+          valueFrom:
+            configMapKeyRef:
+              name: operator-config
+              key: REQUEST_DEBUG
+        - name: PREFIX_POD_LABEL
+          valueFrom:
+            configMapKeyRef:
+              name: operator-config
+              key: PREFIX_POD_LABEL
       serviceAccountName: controller-manager
       terminationGracePeriodSeconds: 10

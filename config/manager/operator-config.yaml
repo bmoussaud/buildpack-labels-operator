@@ -1,0 +1,10 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: operator-config
+  namespace: system
+data:
+  WATCHED_REGISTRY: harbor.mytanzu.xyz
+  PREFIX_IMAGE_LABEL: watermark.
+  REQUEST_DEBUG: "false"
+  PREFIX_POD_LABEL: my-tanzu-build-service

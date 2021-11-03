@@ -18,9 +18,13 @@ package controllers
 
 import (
 	"context"
+	"encoding/json"
 	"fmt"
+	"io/ioutil"
+	"net/http"
 	"os"
 	"strings"
+	"time"
 
 	corev1 "k8s.io/api/core/v1"
 	apierrors "k8s.io/apimachinery/pkg/api/errors"
@@ -47,10 +51,19 @@ var prefixPodLabel = getEnv("PREFIX_POD_LABEL", "tanzu-build-service")
 var requestDebug = getEnv("REQUEST_DEBUG", "false") == "true"
 
 func splitImage(image string) (domain string, remainder string, tag string) {
+	// image harbor.mytanzu.xyz/library/micropet-tap-pets@sha256:446be1d21a57a6e92312e10a7530bd5da34240e80f0855a03061d2dabd479177
+	// image (domain=harbor.mytanzu.xyz)/(remainder=library/micropet-tap-pets):(tag=sha256:446be1d21a57a6e92312e10a7530bd5da34240e80f0855a03061d2dabd479177)
+	// image (domain=harbor.mytanzu.xyz)/(remainder=library/micropet-tap-pets):(tag=sha256:446be1d21a57a6e92312e10a7530bd5da34240e80f0855a03061d2dabd479177)
+
 	i := strings.IndexRune(image, '/')
 	domain, remainder = image[:i], image[i+1:]
 	itag := strings.IndexRune(remainder, ':')
 	remainder, tag = remainder[:itag], remainder[itag+1:]
+
+	if strings.Contains(remainder, "@sha256") {
+		tag = "sha256:" + tag
+		remainder = remainder[:len(remainder)-len("@sha256")]
+	}
 	return
 }
 
@@ -68,21 +81,24 @@ type Config struct {
 }
 
 func queryDigest(ctx context.Context, image string) (digest string) {
-	header := req.Header{
-		"Accept":  "application/vnd.docker.distribution.manifest.v2+json",
-		"Expires": "10ms",
-	}
 
 	req.Debug = requestDebug
 	domain, repo, tag := splitImage(image)
 	manifest_registry_url := fmt.Sprintf("https://%s/v2/%s/manifests/%s", domain, repo, tag)
 
 	log.FromContext(ctx).Info("===> queryDigest Connecting URL " + manifest_registry_url)
-	r, _ := req.Get(manifest_registry_url, header)
-	var result Manifests
-	r.ToJSON(&result)
-	//log.FromContext(ctx).Info("===> queryDigest Digest "+result.Config.Digest)
-	return result.Config.Digest
+
+	body, err := call(manifest_registry_url, "GET")
+	if err != nil {
+		log.FromContext(ctx).Info("failed call (" + manifest_registry_url + ")" + err.Error())
+	} else {
+		var result Manifests
+		log.FromContext(ctx).Info("===> queryDigest Body " + string(body))
+		json.Unmarshal(body, &result)
+		log.FromContext(ctx).Info("===> queryDigest Digest " + result.Config.Digest)
+		return result.Config.Digest
+	}
+	return
 }
 
 type BlobConfig struct {
@@ -97,23 +113,57 @@ type BlobResult struct {
 	Config       BlobConfig
 }
 
-func queryConfig(ctx context.Context, image string, digest string) (config BlobConfig) {
-	header := req.Header{
-		"Accept":  "application/vnd.docker.distribution.manifest.v2+json",
-		"Expires": "10ms",
+func call(url, method string) ([]byte, error) {
+	client := &http.Client{
+		Timeout: time.Second * 10,
 	}
+
+	req, err := http.NewRequest(method, url, nil)
+	if err != nil {
+		return nil, fmt.Errorf("got error %s", err.Error())
+	}
+	req.SetBasicAuth("robot$buildpack-labels-operator", "391BGIkqZxv0Ks78baiZx9RttCk4ciU6")
+	req.Header.Add("Accept", "application/vnd.docker.distribution.manifest.v2+json")
+	req.Header.Add("Expires", "10ms")
+
+	response, err := client.Do(req)
+
+	if err != nil {
+		return nil, fmt.Errorf("got error %s", err.Error())
+	}
+	defer response.Body.Close()
+
+	//fmt.Println("response Status:", response.Status)
+	//fmt.Println("response Headers:", response.Header)
+	body, err := ioutil.ReadAll(response.Body)
+	if err != nil {
+		return nil, fmt.Errorf("got error %s", err.Error())
+	}
+
+	return body, nil
+}
+
+func queryConfig(ctx context.Context, image string, digest string) (config BlobConfig) {
 
 	req.Debug = requestDebug
 	domain, repo, _ := splitImage(image)
-	blob_registry_url := fmt.Sprintf("https://%s/v2/%s/blobs//%s", domain, repo, digest)
+	blob_registry_url := fmt.Sprintf("https://%s/v2/%s/blobs/%s", domain, repo, digest)
 
-	log.FromContext(ctx).Info("===> queryConfig Connecting URL" + blob_registry_url)
-	r, _ := req.Get(blob_registry_url, header)
-	var result BlobResult
+	log.FromContext(ctx).Info("===> queryConfig Connecting URL:" + blob_registry_url)
 
-	r.ToJSON(&result)
-	//log.FromContext(ctx).Info("===> queryConfig Digest"+ result.Config.Labels)
-	config = result.Config
+	//r, _ := req.Get(blob_registry_url, header)
+	body, err := call(blob_registry_url, "GET")
+	if err != nil {
+		log.FromContext(ctx).Info("failed call (" + blob_registry_url + ")" + err.Error())
+	} else {
+		log.FromContext(ctx).Info("===> queryConfig Body " + string(body))
+		var result BlobResult
+		json.Unmarshal(body, &result)
+		log.FromContext(ctx).Info("===> queryConfig Digest:" + fmt.Sprint(result.Config.Labels))
+		config = result.Config
+		return
+	}
+
 	return
 }
 
@@ -213,7 +263,7 @@ func (r *PodReconciler) Reconcile(ctx context.Context, req ctrl.Request) (ctrl.R
 	if len(all_candidates) == 0 {
 		// The desired state and actual state of the Pod are the same.
 		// No further action is required by the operator at this moment.
-		log.FromContext(ctx).Info("no kpackLabelsFound")
+		log.FromContext(ctx).Info("no labels founds (" + prefixImageLabel + ")")
 		return ctrl.Result{}, nil
 	}
 
@@ -262,10 +312,12 @@ func (r *PodReconciler) Reconcile(ctx context.Context, req ctrl.Request) (ctrl.R
 // SetupWithManager sets up the controller with the Manager.
 func (r *PodReconciler) SetupWithManager(mgr ctrl.Manager) error {
 	mgr.GetLogger().Info("----- Env Dump -- ")
+
 	mgr.GetLogger().Info("WATCHED_REGISTRY:" + watchedRegistry)
 	mgr.GetLogger().Info("PREFIX_IMAGE_LABEL:" + prefixImageLabel)
 	mgr.GetLogger().Info("PREFIX_POD_LABEL:" + prefixPodLabel)
 	mgr.GetLogger().Info("REQUEST_DEBUG:" + getEnv("REQUEST_DEBUG", "false"))
+	req.Debug = requestDebug
 	return ctrl.NewControllerManagedBy(mgr).
 		For(&corev1.Pod{}).
 		Complete(r)
