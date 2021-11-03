@@ -16,7 +16,6 @@ images:
   newName: harbor.mytanzu.xyz/library/buildpack-labels-operator
   newTag: 0.0.1
 
-
 secretGenerator:
 - envs:
   - .env.secrets
