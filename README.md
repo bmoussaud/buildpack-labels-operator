@@ -1,6 +1,28 @@
 # BUILD PACK LABELS OPERATOR
 
-This kubernetes operator watch pods. It inspects all the managed images running in pods. If one of them comes from the `WATCHED_REGISTRY` and contains Labels put at build time by `kPack` or [Tanzu Build Service](https://tanzu.vmware.com/build-service) starting with `PREFIX_IMAGE_LABEL` then all these labeks will be applied on the running pod using the `PREFIX_POD_LABEL`.
+This kubernetes operator watch pods. It inspects all the managed images running in pods. If one of them comes from the `WATCHED_REGISTRY` and contains Labels put at build time by `kPack` or [Tanzu Build Service](https://tanzu.vmware.com/build-service) starting with `PREFIX_IMAGE_LABEL` then all these labels will be applied on the running pod using the `PREFIX_POD_LABEL`.
+
+
+## Configuration
+
+Environment Variables:
+* WATCHED_REGISTRY : only images coming from this registry will be managed (ie whose image value start with ...). Ex if image: docker.io/lklkmskfms:v1, the WATCHED_REGISTRY's value should be `docker.io`.
+* WATCHED_REGISTRY_USERNAME: username used to make queries agains the WATCHED_REGISTRY
+* WATCHED_REGISTRY_PASSWORD: password used to make queries agains the WATCHED_REGISTRY
+* PREFIX_IMAGE_LABEL: fetch the labels that start with this value.
+* PREFIX_POD_LABEL: the prefix set on the pod's label. Eg if PREFIX_POD_LABEL=tanzu then all the pods'labels will be `tanzu/<container-label>`
+* REQUEST_DEBUG: if `true`, the operator dumps the results to the calls to the registry
+
+Edit the values defined
+* in [`config/manager/operator-config.yaml`](config/manager/operator-config.yaml) 
+* in [`config/manager/.env.secrets`](config/manager/.env.secrets) for sensitive informations / secrets
+
+ex:
+````
+File: .env.secrets
+watched_registry_username=robot$buildpack-labels-operator
+watched_registry_password=AZERTYUIOPMLKJHGHGFQS:::99
+````
 
 ## Use Case
 
@@ -36,26 +58,17 @@ kustomize build config/default | kubectl apply -f -
 The following command return all the pods that match one of the labels
 
 ````
-kubectl get pods -A -l tanzu-build-service/kpack.builder.instance=tbs-2 -o wide
+kubectl get pods -A -l tanzu-build-service/watermark.instance=mycompany-instance-one
 ````
+
 
 ![schema](buildpack-labels-operator.jpg)
 
+## Troobleshoot
 
-## Configuration
-
-Environment Variables:
-* WATCHED_REGISTRY : only images coming from the public registry will be managed (ie whose image value start with ...). Ex if image: docker.io/lklkmskfms:v1, the WATCHED_REGISTRY's value should be docker.io.
-* PREFIX_IMAGE_LABEL: fetch the labels that start with this value.
-* PREFIX_POD_LABEL: the prefix set on the pod's label. Eg if PREFIX_POD_LABEL=tanzu then all the pods'labels will be `tanzu/<container-label>`
-* REQUEST_DEBUG: if `true`, the operator dumps the results to the call to the registry
-
-Edit the values defined in [`config/manager/operator-config.yaml`](config/manager/operator-config.yaml)
-
-## Known limitation:
-
-* don't manage non public registries
-
+````
+kubectl logs -n buildpack-labels-operator-system buildpack-labels-operator-controller-manager-xxxxxx -c manager -f
+````
 ## Source
 
 The controler is based on this article [Get labels of remote docker image](https://stackoverflow.com/questions/62600611/get-labels-of-remote-docker-image)

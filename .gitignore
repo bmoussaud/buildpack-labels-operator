@@ -25,3 +25,4 @@ testbin/*
 *~
 get_digest.sh
 .DS_Store
+.env.secrets

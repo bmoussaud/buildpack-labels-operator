@@ -93,9 +93,13 @@ func queryDigest(ctx context.Context, image string) (digest string) {
 		log.FromContext(ctx).Info("failed call (" + manifest_registry_url + ")" + err.Error())
 	} else {
 		var result Manifests
-		log.FromContext(ctx).Info("===> queryDigest Body " + string(body))
+		if requestDebug {
+			log.FromContext(ctx).Info("===> queryDigest Body " + string(body))
+		}
 		json.Unmarshal(body, &result)
-		log.FromContext(ctx).Info("===> queryDigest Digest " + result.Config.Digest)
+		if requestDebug {
+			log.FromContext(ctx).Info("===> queryDigest Digest " + result.Config.Digest)
+		}
 		return result.Config.Digest
 	}
 	return
@@ -123,7 +127,7 @@ func call(url, method string) ([]byte, error) {
 		return nil, fmt.Errorf("got error %s", err.Error())
 	}
 	// TODO: Manage Private Registries....
-	req.SetBasicAuth("robot$buildpack-labels-operator", "391BGIkqZxv0Ks78baiZx9RttCk4ciU6")
+	req.SetBasicAuth(getEnv("WATCHED_REGISTRY_USERNAME", "nil"), getEnv("WATCHED_REGISTRY_PASSWORD", "nil"))
 	req.Header.Add("Accept", "application/vnd.docker.distribution.manifest.v2+json")
 	req.Header.Add("Expires", "10ms")
 
@@ -157,10 +161,14 @@ func queryConfig(ctx context.Context, image string, digest string) (config BlobC
 	if err != nil {
 		log.FromContext(ctx).Info("failed call (" + blob_registry_url + ")" + err.Error())
 	} else {
-		log.FromContext(ctx).Info("===> queryConfig Body " + string(body))
+		if requestDebug {
+			log.FromContext(ctx).Info("===> queryConfig Body " + string(body))
+		}
 		var result BlobResult
 		json.Unmarshal(body, &result)
-		log.FromContext(ctx).Info("===> queryConfig Digest:" + fmt.Sprint(result.Config.Labels))
+		if requestDebug {
+			log.FromContext(ctx).Info("===> queryConfig Digest:" + fmt.Sprint(result.Config.Labels))
+		}
 		config = result.Config
 		return
 	}
@@ -267,7 +275,9 @@ func (r *PodReconciler) Reconcile(ctx context.Context, req ctrl.Request) (ctrl.R
 	if len(all_candidates) == 0 {
 		// The desired state and actual state of the Pod are the same.
 		// No further action is required by the operator at this moment.
-		log.FromContext(ctx).Info("no labels founds (" + prefixImageLabel + ")")
+		if requestDebug {
+			log.FromContext(ctx).Info("no labels founds (" + prefixImageLabel + ")")
+		}
 		return ctrl.Result{}, nil
 	}
 
@@ -321,6 +331,10 @@ func (r *PodReconciler) SetupWithManager(mgr ctrl.Manager) error {
 	mgr.GetLogger().Info("PREFIX_IMAGE_LABEL:" + prefixImageLabel)
 	mgr.GetLogger().Info("PREFIX_POD_LABEL:" + prefixPodLabel)
 	mgr.GetLogger().Info("REQUEST_DEBUG:" + getEnv("REQUEST_DEBUG", "false"))
+
+	mgr.GetLogger().Info("WATCHED_REGISTRY_USERNAME:" + getEnv("WATCHED_REGISTRY_USERNAME", "nil"))
+	//mgr.GetLogger().Info("WATCHED_REGISTRY_PASSWORD:" + getEnv("WATCHED_REGISTRY_PASSWORD", "nil"))
+
 	req.Debug = requestDebug
 	return ctrl.NewControllerManagedBy(mgr).
 		For(&corev1.Pod{}).
