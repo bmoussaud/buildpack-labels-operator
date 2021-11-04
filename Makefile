@@ -122,6 +122,15 @@ deploy: manifests kustomize ## Deploy controller to the K8s cluster specified in
 undeploy: ## Undeploy controller from the K8s cluster specified in ~/.kube/config.
 	$(KUSTOMIZE) build config/default | kubectl delete -f -
 
+kapp-gen:  manifests kustomize
+	cd config/manager && $(KUSTOMIZE) edit set image controller=${IMG}
+	$(KUSTOMIZE) build config/default > kapp/current/buildpack-labels-operator.yaml
+
+kapp-deploy:
+	kapp deploy -y -a buildpack-labels-operator -f kapp/current/buildpack-labels-operator.yaml
+
+kapp-undeploy:
+	kapp  delete -a buildpack-labels-operator
 
 CONTROLLER_GEN = $(shell pwd)/bin/controller-gen
 controller-gen: ## Download controller-gen locally if necessary.
