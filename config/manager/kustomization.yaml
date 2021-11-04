@@ -15,7 +15,6 @@ images:
 - name: controller
   newName: ghcr.io/bmoussaud/buildpack-labels-operator
   newTag: v0.0.1
-
 secretGenerator:
 - envs:
   - .env.secrets
