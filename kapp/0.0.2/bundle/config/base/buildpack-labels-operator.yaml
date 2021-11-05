@@ -262,7 +262,7 @@ spec:
             secretKeyRef:
               key: watched_registry_password
               name: buildpack-labels-operator-operator-secret
-        image: ghcr.io/bmoussaud/buildpack-labels-operator:v0.0.1
+        image: ghcr.io/bmoussaud/buildpack-labels-operator:0.0.2
         imagePullPolicy: Always
         livenessProbe:
           httpGet:

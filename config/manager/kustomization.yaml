@@ -14,7 +14,7 @@ kind: Kustomization
 images:
 - name: controller
   newName: ghcr.io/bmoussaud/buildpack-labels-operator
-  newTag: v0.0.1
+  newTag: 0.0.2
 secretGenerator:
 - envs:
   - .env.secrets

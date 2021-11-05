@@ -2,7 +2,7 @@ apiVersion: data.packaging.carvel.dev/v1alpha1
 kind: Package
 metadata:
   name: buildpack-labels-operator.moussaud.org.0.0.2
-  namespace: metallb
+  namespace: buildpack-labels-operator
 spec:
   refName: buildpack-labels-operator.moussaud.org
   version: 0.0.2

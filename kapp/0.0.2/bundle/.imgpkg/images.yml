@@ -13,6 +13,8 @@ images:
           url: gcr.io/kubebuilder/kube-rbac-proxy@sha256:db06cc4c084dd0253134f156dddaaf53ef1c3fb3cc809e5d81711baa4029ea4c
       - preresolved:
           url: gcr.io/kubebuilder/kube-rbac-proxy@sha256:db06cc4c084dd0253134f156dddaaf53ef1c3fb3cc809e5d81711baa4029ea4c
+      - preresolved:
+          url: gcr.io/kubebuilder/kube-rbac-proxy@sha256:db06cc4c084dd0253134f156dddaaf53ef1c3fb3cc809e5d81711baa4029ea4c
   image: gcr.io/kubebuilder/kube-rbac-proxy@sha256:db06cc4c084dd0253134f156dddaaf53ef1c3fb3cc809e5d81711baa4029ea4c
 - annotations:
     kbld.carvel.dev/id: ghcr.io/bmoussaud/buildpack-labels-operator:v0.0.1
@@ -20,6 +22,8 @@ images:
       - resolved:
           tag: v0.0.1
           url: ghcr.io/bmoussaud/buildpack-labels-operator:v0.0.1
+      - preresolved:
+          url: ghcr.io/bmoussaud/buildpack-labels-operator@sha256:49333d38aed8829428fe5c508054e349f2ad772ff5392ed38a603a2ff4a6e567
       - preresolved:
           url: ghcr.io/bmoussaud/buildpack-labels-operator@sha256:49333d38aed8829428fe5c508054e349f2ad772ff5392ed38a603a2ff4a6e567
       - preresolved:
