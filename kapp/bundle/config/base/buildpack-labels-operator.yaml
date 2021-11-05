@@ -174,8 +174,8 @@ metadata:
 ---
 apiVersion: v1
 data:
-  watched_registry_password: MzkxQkdJa3FaeHYwS3M3OGJhaVp4OVJ0dENrNGNpVTY=
-  watched_registry_username: cm9ib3QkYnVpbGRwYWNrLWxhYmVscy1vcGVyYXRvcg==
+  watched_registry_password: WFhYWFhYWFhYWA==
+  watched_registry_username: YnJvYm90JGJ1aWxkcGFjay1sYWJlbHMtb3BlcmF0b3I=
 kind: Secret
 metadata:
   name: buildpack-labels-operator-operator-secret
@@ -262,7 +262,7 @@ spec:
             secretKeyRef:
               key: watched_registry_password
               name: buildpack-labels-operator-operator-secret
-        image: ghcr.io/bmoussaud/buildpack-labels-operator:0.0.2
+        image: ghcr.io/bmoussaud/buildpack-labels-operator:main
         imagePullPolicy: Always
         livenessProbe:
           httpGet:

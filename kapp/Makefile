@@ -5,7 +5,7 @@ REQUIRED_BINARIES := imgpkg kbld ytt vendir
 PACKAGE_VERSION := $(VERSION)
 OCI_IMAGE := ghcr.io/$(IMAGE_TAG_BASE)-package
 
-CARVEL_TOOLS_DIR=/tmp/benoit33
+CARVEL_TOOLS_DIR=/tmp/carvel_tools
 
 check-carvel: install-carvel
 	$(foreach exec,$(REQUIRED_BINARIES),\
@@ -24,7 +24,7 @@ endif
 #	$(foreach pkgv,$(PACKAGE_VERSION),cd $(pkgv)/bundle && $(CARVEL_TOOLS_DIR)/vendir sync)
 
 lock: check-carvel # Updates the image lock file for each package.
-	$(foreach pkgv,$(PACKAGE_VERSION),cd $(pkgv) && $(CARVEL_TOOLS_DIR)/kbld --file bundle --imgpkg-lock-output bundle/.imgpkg/images.yml)
+	$(CARVEL_TOOLS_DIR)/kbld --file bundle --imgpkg-lock-output bundle/.imgpkg/images.yml
 
 push: lock # Build and push packages.	
-	$(foreach pkgv,$(PACKAGE_VERSION),cd $(pkgv) && $(CARVEL_TOOLS_DIR)/imgpkg push --bundle $(OCI_IMAGE):${pkgv} --file bundle/)
+	$(CARVEL_TOOLS_DIR)/imgpkg push --bundle $(OCI_IMAGE):${PACKAGE_VERSION} --file bundle/

@@ -123,10 +123,11 @@ undeploy: ## Undeploy controller from the K8s cluster specified in ~/.kube/confi
 	$(KUSTOMIZE) build config/default | kubectl delete -f -
 
 kapp-gen: kustomize	
-	$(KUSTOMIZE) build config/default > ./kapp/${VERSION}/bundle/config/base/buildpack-labels-operator.yaml
+	cd config/manager && $(KUSTOMIZE) edit set image controller=${IMG}
+	$(KUSTOMIZE) build config/default > ./kapp/bundle/config/base/buildpack-labels-operator.yaml
 
 kapp-deploy:
-	kapp deploy -y -a buildpack-labels-operator -f ./kapp/${VERSION}/bundle/config/base/buildpack-labels-operator.yaml
+	kapp deploy -y -a buildpack-labels-operator -f ./kapp/bundle/config/base/buildpack-labels-operator.yaml
 	
 kapp-undeploy:
 	kapp  delete -a buildpack-labels-operator
