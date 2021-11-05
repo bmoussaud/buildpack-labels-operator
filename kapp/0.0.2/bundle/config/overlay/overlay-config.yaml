@@ -1,0 +1,14 @@
+#@ load("@ytt:data", "data")
+
+#@yaml/text-templated-strings
+---
+apiVersion: v1
+data:
+  PREFIX_IMAGE_LABEL: (@= str(data.values.buildpack_labels_operator.prefix_image_label) @)
+  PREFIX_POD_LABEL: (@= str(data.values.buildpack_labels_operator.prefix_pod_label) @)
+  REQUEST_DEBUG: (@= str(data.values.buildpack_labels_operator.request_debug) @)
+  WATCHED_REGISTRY: (@= str(data.values.buildpack_labels_operator.watched_registry) @)
+kind: ConfigMap
+metadata:
+  name: buildpack-labels-operator-operator-config
+  namespace: buildpack-labels-operator-system

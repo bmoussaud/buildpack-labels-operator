@@ -1,0 +1,26 @@
+apiVersion: data.packaging.carvel.dev/v1alpha1
+kind: Package
+metadata:
+  name: buildpack-labels-operator.moussaud.org.0.0.2
+  namespace: metallb
+spec:
+  refName: buildpack-labels-operator.moussaud.org
+  version: 0.0.2
+  releaseNotes: "buildpack-labels-operator 0.0.2 https://github.com/bmoussaud/buildpack-labels-operator"
+  licenses:
+  - "Apache 2.0"
+  template:
+    spec:
+      fetch:
+      - imgpkgBundle:
+          image: ghcr.io/bmoussaud/buildpack-labels-operator-package@0.0.2
+      template:
+      - ytt:
+          paths:
+          - config/
+      - kbld:
+          paths:
+          - "-"
+          - .imgpkg/images.yml
+      deploy:
+      - kapp: {}

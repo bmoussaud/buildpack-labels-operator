@@ -3,7 +3,7 @@
 # To re-generate a bundle for another specific version without changing the standard setup, you can:
 # - use the VERSION as arg of the bundle target (e.g make bundle VERSION=0.0.2)
 # - use environment variables to overwrite this value (e.g export VERSION=0.0.2)
-VERSION ?= v0.0.1
+VERSION ?= 0.0.2
 
 # CHANNELS define the bundle channels used in the bundle.
 # Add a new line here if you would like to change its default config. (E.g CHANNELS = "candidate,fast,stable")
@@ -122,15 +122,17 @@ deploy: manifests kustomize ## Deploy controller to the K8s cluster specified in
 undeploy: ## Undeploy controller from the K8s cluster specified in ~/.kube/config.
 	$(KUSTOMIZE) build config/default | kubectl delete -f -
 
-kapp-gen:  manifests kustomize
-	cd config/manager && $(KUSTOMIZE) edit set image controller=${IMG}
-	$(KUSTOMIZE) build config/default > kapp/current/buildpack-labels-operator.yaml
+kapp-gen:  manifests kustomize	
+	$(KUSTOMIZE) build config/default > ./kapp/${VERSION}/bundle/config/base/buildpack-labels-operator.yaml
 
 kapp-deploy:
-	kapp deploy -y -a buildpack-labels-operator -f kapp/current/buildpack-labels-operator.yaml
-
+	kapp deploy -y -a buildpack-labels-operator -f ./kapp/${VERSION}/bundle/config/base/buildpack-labels-operator.yaml
+	
 kapp-undeploy:
 	kapp  delete -a buildpack-labels-operator
+
+kapp: kapp-gen	
+	cd kapp && VERSION=$(VERSION) IMAGE_TAG_BASE=$(IMAGE_TAG_BASE) $(MAKE) push
 
 CONTROLLER_GEN = $(shell pwd)/bin/controller-gen
 controller-gen: ## Download controller-gen locally if necessary.

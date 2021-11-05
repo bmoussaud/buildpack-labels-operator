@@ -1,0 +1,9 @@
+#@data/values
+---
+buildpack_labels_operator:
+  prefix_image_label: watermark.
+  prefix_pod_label: app.map
+  request_debug: "false"
+  watched_registry: harbor.mytanzu.xyz
+  watched_registry_password: tiger 
+  watched_registry_username: woods
