@@ -13,7 +13,7 @@ spec:
     spec:
       fetch:
       - imgpkgBundle:
-          image: ghcr.io/bmoussaud/buildpack-labels-operator-package@0.0.2
+          image: ghcr.io/bmoussaud/buildpack-labels-operator-package:main
       template:
       - ytt:
           paths:
@@ -24,3 +24,53 @@ spec:
           - .imgpkg/images.yml
       deploy:
       - kapp: {}
+  valuesSchema:
+    openAPIv3:
+      title: buildpack-labels-operator.moussaud.org values schema
+      examples:
+      - prefix_image_label: watermark.
+        prefix_pod_label: app.map
+        request_debug: "false"
+        watched_registry: harbor.mytanzu.xyz
+        watched_registry_password: tiger 
+        watched_registry_username: woods
+      properties:
+        prefix_image_label:
+          type: string
+          description: Only Image Labels starting with will be managed
+          default: watermark.
+          examples:
+          - watermark.
+        prefix_pod_label:
+          type: string
+          description: Prefix append to the managed labels before set on the pods
+          default: app.map.
+          examples:
+          - app.map.
+        request_debug:
+          type: boolean
+          description: Enable a debug ouput in the pod'slogs
+          default: false
+          examples:
+          - false
+        watched_registry:
+          type: string
+          description: Watch only the images comming from this registry
+          default: harbor.mytanzu.xyz
+          examples:
+          - harbor.mytanzu.xyz
+        watched_registry_username:
+          type: string
+          format: password
+          description: username to access the watched registry
+          default: scott
+          examples:
+          - scott
+        watched_registry_password:
+          type: string
+          format: password
+          description: password associated with the username to access the watched registry
+          default: tiger
+          examples:
+          - tiger
+        
