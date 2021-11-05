@@ -27,4 +27,5 @@ lock: check-carvel # Updates the image lock file for each package.
 	$(CARVEL_TOOLS_DIR)/kbld --file bundle --imgpkg-lock-output bundle/.imgpkg/images.yml
 
 push: lock # Build and push packages.	
+	echo "push $(OCI_IMAGE):${PACKAGE_VERSION}"
 	$(CARVEL_TOOLS_DIR)/imgpkg push --bundle $(OCI_IMAGE):${PACKAGE_VERSION} --file bundle/

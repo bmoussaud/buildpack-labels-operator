@@ -64,4 +64,4 @@ jobs:
       
       # Deploy Carvel.dev Package     
       - name: Deploy carvel.dev package
-        run: VERSION=${{ steps.meta.outputs.tags }} make -d kapp
+        run: BUILT_VERSION=${{ steps.meta.outputs.tags }} VERSION=${{ steps.meta.outputs.version }} make -d kapp
